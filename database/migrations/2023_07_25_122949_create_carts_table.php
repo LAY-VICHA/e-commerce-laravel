@@ -17,16 +17,16 @@ return new class extends Migration
             $table->string("status");
             $table->timestamps();
 
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
 
-            $table->unsignedBigInteger('pro_id')->nullable();
+            $table->unsignedBigInteger('pro_id');
             $table->foreign('pro_id')->references('id')->on('products');
 
-            $table->unsignedBigInteger('sce_id')->nullable();
+            $table->unsignedBigInteger('sce_id');
             $table->foreign('sce_id')->references('id')->on('product_scents');
 
-            $table->unsignedBigInteger('siz_id')->nullable();
+            $table->unsignedBigInteger('siz_id');
             $table->foreign('siz_id')->references('id')->on('product_sizes');
         });
     }
