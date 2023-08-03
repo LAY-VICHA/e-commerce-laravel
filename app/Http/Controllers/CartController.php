@@ -85,14 +85,17 @@ class CartController extends Controller
             ->join('products', 'carts.pro_id', '=', 'products.id')
             ->join('product_scents', 'carts.sce_id', '=', 'product_scents.id')
             ->join('product_sizes', 'carts.siz_id', '=', 'product_sizes.id')
-            ->select('carts.*', 'products.name as product_name',
-                    'products.image as product_image',
-                    'product_scents.name as product_scent_name',
-                    'product_sizes.name as product_size_name')
+            ->select(
+                'carts.*',
+                'products.name as product_name',
+                'products.image as product_image',
+                'product_scents.name as product_scent_name',
+                'product_sizes.name as product_size_name'
+            )
             ->get();
     }
 
-     /**
+    /**
      * use for user checking out
      */
     public function checkout(string $id) //user id
@@ -101,7 +104,7 @@ class CartController extends Controller
         $carts = Cart::where('user_id', $id)->get();
 
         //check if cart is empty 
-        if(!$carts) {
+        if (!$carts) {
             return response([
                 'message' => 'no data for checkout'
             ]);
@@ -109,7 +112,7 @@ class CartController extends Controller
 
         $subtotal = 0;
         foreach ($carts as $cart) {
-            $subtotal += $cart->subtotal; 
+            $subtotal += $cart->subtotal;
         }
         $tax = $subtotal * 0.1;
         $total = $subtotal + $tax;
@@ -120,7 +123,66 @@ class CartController extends Controller
             'subtotal' => $subtotal,
             'tax' => $tax,
             'total' => $total,
+            'status' => 'unpaid',
         ]);
+
+        return response()->json(['message' => 'Order created successfully']);
+    }
+
+    /**
+     * use for user checking out again
+     */
+    public function checkoutAgain(string $id) //user id
+    {
+        //get all cart(product) ***preparing for storing it into order detail table***
+        $carts = Cart::where('user_id', $id)->get();
+
+        //check if cart is empty 
+        if (!$carts) {
+            return response([
+                'message' => 'no data for checkout'
+            ]);
+        }
+
+        $subtotal = 0;
+        foreach ($carts as $cart) {
+            $subtotal += $cart->subtotal;
+        }
+        $tax = $subtotal * 0.1;
+        $total = $subtotal + $tax;
+
+        $order = Order::where('user_id', $id)
+            ->where('status', 'unpaid')
+            ->update([
+                'subtotal' => $subtotal,
+                'tax' => $tax,
+                'total' => $total,
+            ]);
+
+        return response()->json(['message' => 'Order created successfully']);
+    }
+
+    /**
+     * Called when user click pay 
+     * This function will update orders status to paid 
+     * Copy cart data to order detail
+     * delete all cart with provided user id
+     */
+    public function pay(string $id) //user id
+    {
+        //get all cart(product) ***preparing for storing it into order detail table***
+        $carts = Cart::where('user_id', $id)->get();
+
+        //check if cart is empty 
+        if (!$carts) {
+            return response([
+                'message' => 'no data for checkout'
+            ]);
+        }
+
+        $order = Order::where('user_id', $id)
+            ->where('status', 'unpaid')
+            ->first();
 
         // store cart in order detail
         foreach ($carts as $cart) {
@@ -130,13 +192,28 @@ class CartController extends Controller
                 'sce_id' => $cart->sce_id,
                 'siz_id' => $cart->siz_id,
                 'quantity' => $cart->quantity,
-                'subtotal' => $cart->subtotal, 
+                'subtotal' => $cart->subtotal,
             ]);
         }
 
         //delete the cart record of the user
         Cart::where('user_id', $id)->delete();
 
-        return response()->json(['message' => 'Order created successfully']);
+        //update status to paid
+        Order::where('user_id', $id)
+            ->where('status', 'unpaid')
+            ->update([
+                'status' => 'paid',
+            ]);
+
+        return response()->json(['message' => 'Pay successfully']);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function notification(string $id)
+    {
+        return Cart::where('user_id', $id)->get();
     }
 }

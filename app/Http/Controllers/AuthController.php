@@ -69,4 +69,22 @@ class AuthController extends Controller
             'message' => 'Logged out'
         ];
     }
+
+    public function checkValidRegister(Request $request) {
+        $username = User::where('username', $request['username'])->first();
+        if($username) {
+            return response([
+                'message' => 'Username is alredy taken'
+            ]);
+        }
+        
+        $user = User::where('email', $request['email'])->first();
+        if($user) {
+            return response([
+                'message' => 'Email is alredy taken'
+            ]);
+        }
+
+        return null;
+    }
 }

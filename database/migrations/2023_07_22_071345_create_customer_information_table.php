@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string("state");
             $table->string("zip");
             $table->text("address");
-            $table->string("apt");
+            $table->string("apt")->nullable();
             $table->string("firstname");
             $table->string("lastname");
             $table->string("email");

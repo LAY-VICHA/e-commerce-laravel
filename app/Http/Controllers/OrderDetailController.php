@@ -87,6 +87,18 @@ class OrderDetailController extends Controller
             ]);
         }
 
-        return OrderDetail::where('order_id', $id)->get();
+        return OrderDetail::where('order_id', $id)
+                        ->join('products', 'order_details.pro_id', '=', 'products.id')
+                        ->join('product_scents', 'order_details.sce_id', '=', 'product_scents.id')
+                        ->join('product_sizes', 'order_details.siz_id', '=', 'product_sizes.id')
+                        ->select(
+                            'order_details.*',
+                            'products.name as product_name',
+                            'products.image as product_image',
+                            'product_scents.name as product_scent_name',
+                            'product_sizes.name as product_size_name',
+                            'product_sizes.price as product_size_price',
+                        )
+                        ->get();
     }
 }

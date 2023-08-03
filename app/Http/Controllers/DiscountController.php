@@ -67,4 +67,12 @@ class DiscountController extends Controller
     {
         return Discount::destroy($id);
     }
+
+    /**
+     * find the discount by code
+     */
+    public function search(string $code)
+    {
+        return Discount::where('code', $code)->first();
+    }
 }

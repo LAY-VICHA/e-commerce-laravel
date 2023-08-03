@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //pulic route
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register/validate', [AuthController::class, 'checkValidRegister']);
 //category
 Route::get('/productcategories', [ProductCategoryController::class, 'index']);
 Route::get('/productcategories/{id}', [ProductCategoryController::class, 'show']);
@@ -54,6 +55,7 @@ Route::get('/carts/incart/{id}', [CartController::class, 'getCurrentCart']);
 //discount
 Route::get('/discounts', [DiscountController::class, 'index']);
 Route::get('/discounts/{id}', [DiscountController::class, 'show']);
+Route::get('/discounts/search/{code}', [DiscountController::class, 'search']);
 //customer information
 Route::get('/customerinformation', [CustomerInformationController::class, 'index']);
 Route::get('/customerinformation/{id}', [CustomerInformationController::class, 'show']);
@@ -84,6 +86,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('/productscents/{id}', [ProductScentController::class, 'destroy'])->middleware('restrictRole:admin');
 
     Route::post('/productsizes', [ProductSizeController::class, 'store'])->middleware('restrictRole:admin');
+    Route::put('/productsizes/{id}', [ProductSizeController::class, 'update']);
     Route::delete('/productsizes/{id}', [ProductSizeController::class, 'destroy'])->middleware('restrictRole:admin');
 
     Route::post('/discounts', [DiscountController::class, 'store'])->middleware('restrictRole:admin');
@@ -96,28 +99,30 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     //all user protected route
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::post('/carts', [CartController::class, 'store']);
+    Route::put('/carts/{id}', [CartController::class, 'update']);
+    Route::delete('/carts/{id}', [CartController::class, 'destroy']);
+    Route::post('/carts/checkout/{id}', [CartController::class, 'checkout']);
+    Route::put('/carts/checkout/{id}', [CartController::class, 'checkoutAgain']);
+    Route::post('/carts/pay/{id}', [CartController::class, 'pay']);
+    Route::get('/carts/notification/{id}', [CartController::class, 'notification']);
+
+    Route::post('/customerinformation', [CustomerInformationController::class, 'store']);
+    Route::put('/customerinformation/{id}', [CustomerInformationController::class, 'update']);
+    Route::delete('/customerinformation/{id}', [CustomerInformationController::class, 'destroy']);
+
+    Route::post('/orders', [OrderController::class, 'store']);
+    Route::put('/orders/{id}', [OrderController::class, 'update']);
+    Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
+    Route::get('/orders/unpaid/{id}', [OrderController::class, 'getUnpaidOrder']);
+    Route::get('/orders/discounts/{id}', [OrderController::class, 'discount']);
+    Route::get('/orders/customerinformation/{id}', [OrderController::class, 'customerInformation']);
+    Route::get('/orders/shippingmethods/{id}', [OrderController::class, 'shippingMethod']);
+    Route::get('/orders/confirm/{id}', [OrderController::class, 'getOrder']);
+
+    Route::post('/orderdetails', [OrderDetailController::class, 'store']);
+    Route::put('/orderdetails/{id}', [OrderDetailController::class, 'update']);
+    Route::delete('/orderdetails/{id}', [OrderDetailController::class, 'destroy']);
+    Route::get('/orderdetails/orders/{id}', [OrderDetailController::class, 'getOrderDetailByOrder']);
 });
-
-//update product size route
-Route::put('/productsizes/{id}', [ProductSizeController::class, 'update']);
-
-Route::post('/carts', [CartController::class, 'store']);
-Route::put('/carts/{id}', [CartController::class, 'update']);
-Route::delete('/carts/{id}', [CartController::class, 'destroy']);
-Route::post('/carts/checkout/{id}', [CartController::class, 'checkout']);
-
-Route::post('/customerinformation', [CustomerInformationController::class, 'store']);
-Route::put('/customerinformation/{id}', [CustomerInformationController::class, 'update']);
-Route::delete('/customerinformation/{id}', [CustomerInformationController::class, 'destroy']);
-
-Route::post('/orders', [OrderController::class, 'store']);
-Route::put('/orders/{id}', [OrderController::class, 'update']);
-Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
-Route::get('/orders/discounts/{id}', [OrderController::class, 'discount']);
-Route::get('/orders/customerinformation/{id}', [OrderController::class, 'customerInformation']);
-Route::get('/orders/shippingmethods/{id}', [OrderController::class, 'shippingMethod']);
-
-Route::post('/orderdetails', [OrderDetailController::class, 'store']);
-Route::put('/orderdetails/{id}', [OrderDetailController::class, 'update']);
-Route::delete('/orderdetails/{id}', [OrderDetailController::class, 'destroy']);
-Route::delete('/orderdetails/orders/{id}', [OrderDetailController::class, 'getOrderDetailByOrder']);

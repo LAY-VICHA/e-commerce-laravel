@@ -21,7 +21,8 @@ class Order extends Model
         'dis_id',
         'shi_id',
         'cus_id',
-        "total"
+        "total",
+        'status'
     ];
 
     public function userOrder()

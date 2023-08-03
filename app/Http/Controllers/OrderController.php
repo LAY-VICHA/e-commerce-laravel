@@ -40,6 +40,7 @@ class OrderController extends Controller
             "shi_id" => $request->shi_id,
             "cus_id" => $request->cus_id,
             "total" => $request->total,
+            "status" => $request->status,
         ]);
     }
 
@@ -107,5 +108,38 @@ class OrderController extends Controller
         $order = Order::find($id);
 
         return ShippingMethod::where('id', $order->shi_id)->get();
+    }
+
+    /**
+     * To get the user unpaid checkout order (one user only have one unpaid checkout, otherwise they cannot checkout)
+     */
+    public function getUnpaidOrder(string $id)
+    {
+        $order = Order::where('user_id', $id)
+                    ->where('status', 'unpaid')
+                    ->get();
+
+        if ($order) {
+            return $order;
+        }
+    }
+
+    /**
+     * To get order information join with table discount, customer information, shipping method
+     */
+    public function getOrder(string $id)
+    {
+        return Order::leftjoin('discounts', 'orders.dis_id', '=', 'discounts.id')
+                    ->join('customer_information', 'orders.cus_id', '=', 'customer_information.id')
+                    ->join('shipping_methods', 'orders.shi_id', '=', 'shipping_methods.id')
+                    ->select(
+                        'orders.*',
+                        'discounts.*',
+                        'customer_information.*',
+                        'shipping_methods.*',
+                    )
+                    ->where('orders.id', $id)
+                    ->first()
+                    ;
     }
 }
